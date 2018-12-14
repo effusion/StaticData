@@ -1,18 +1,15 @@
 package main
 
 import (
-	"StaticData/importer"
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"StaticData/common"
+	csvMappingRepository "StaticData/csvmapping/repository"
+	"StaticData/xlsximporter/staticdata"
 )
 
-var db* gorm.DB
-
-func main(){
-	db, _ := gorm.Open("mysql", "sfd:SFD_mysql2017@/sfd?charset=utf8&parseTime=True&loc=Local")
-
-	defer db.Close()
-
-	importer.ImportXlsx()
+func main() {
+	common.Init()
+	ar := csvMappingRepository.GetCsvMappingRepository(common.GetDB())
+	imp := staticdata.GetStaticDataImporter(ar)
+	imp.ImportStaticDataXlsx("/home/heuby/go/src/StaticData/files/test.xlsx")
 
 }
