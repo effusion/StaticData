@@ -1,15 +1,16 @@
 package domain
 
 type UnitShare struct {
-	ID int
-	UsId string
-	SubFundId int32
-	UnitShareId int32
+	ID         uint
+	UsId       string
+	SubFundId  uint
 	CtrlStatus string
-	Isin string
+	Isin       string
+	SubFund    SubFund
+	Valor      uint
+	Name       string
 }
 
 func (UnitShare) TableName() string {
 	return "unit_share"
 }
-
