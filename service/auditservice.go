@@ -1,19 +1,23 @@
 package service
 
-import "github.com/jinzhu/gorm"
+import (
+	"StaticData/repository"
+	"github.com/jinzhu/gorm"
+)
 
 type AuditService interface {
-	CreateAudit(d *interface{})
+	CreateAudit(d interface{})
 }
 
 type auditServiceImpl struct {
 	DB *gorm.DB
+	repository.AuditRepository
 }
 
-func GetAuditService(DB *gorm.DB) AuditService {
-	return &auditServiceImpl{DB}
+func GetAuditService(DB *gorm.DB, auditRepository repository.AuditRepository) AuditService {
+	return &auditServiceImpl{DB, auditRepository}
 }
 
-func (a *auditServiceImpl) CreateAudit(d *interface{}) {
+func (a *auditServiceImpl) CreateAudit(d interface{}) {
 	panic("implement me")
 }

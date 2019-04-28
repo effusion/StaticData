@@ -4,6 +4,7 @@ import (
 	"StaticData/common"
 	"StaticData/domain"
 	"github.com/jinzhu/gorm"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"testing"
 )
@@ -14,25 +15,25 @@ type AuditRepositoryTestSuite struct {
 	db   *gorm.DB
 }
 
-func TestSaveAudit(t *testing.T) {
+func TestSuiteAuditRepository(t *testing.T) {
 	suite.Run(t, new(AuditRepositoryTestSuite))
 }
 
-func (s *AuditRepositoryTestSuite) SetupSuite() {
+func (suite *AuditRepositoryTestSuite) SetupSuite() {
 	db := common.Init()
 	db.LogMode(true)
 	db = db.Begin()
-	s.repo = GetAuditRepository(db)
-	s.db = db
+	suite.repo = GetAuditRepository(db)
+	suite.db = db
 }
 
-func (s *AuditRepositoryTestSuite) TearDownSuite() {
-	s.db.Rollback()
-	_ = s.db.Close()
+func (suite *AuditRepositoryTestSuite) TearDownSuite() {
+	suite.db.Rollback()
+	_ = suite.db.Close()
 
 }
 
-func (s *AuditRepositoryTestSuite) TestSaveAudit() {
+func (suite *AuditRepositoryTestSuite) TestSaveAudit() {
 	var auditProperties []domain.AuditProperty
 	auditProperty := domain.AuditProperty{OldValue: "blub", NewValue: "test", PropertyName: "testProperty"}
 	auditProperties = append(auditProperties, auditProperty)
@@ -44,5 +45,7 @@ func (s *AuditRepositoryTestSuite) TestSaveAudit() {
 
 	auditTransaction := domain.AuditTransaction{PartnerName: "Test"}
 	auditTransaction.Audits = audits
-	s.repo.SaveAudit(auditTransaction)
+	errors := suite.repo.SaveAudit(auditTransaction)
+	assert.NotNil(suite.T(), errors)
+	assert.NotNil(suite.T(),auditTransaction.ID)
 }

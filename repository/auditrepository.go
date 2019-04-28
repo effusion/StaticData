@@ -7,7 +7,7 @@ import (
 )
 
 type AuditRepository interface {
-	SaveAudit(transaction domain.AuditTransaction)
+	SaveAudit(transaction domain.AuditTransaction) gorm.Errors
 }
 
 type auditRepositoryImpl struct {
@@ -18,9 +18,10 @@ func GetAuditRepository(DB *gorm.DB) AuditRepository {
 	return &auditRepositoryImpl{DB}
 }
 
-func (a *auditRepositoryImpl) SaveAudit(transaction domain.AuditTransaction) {
-	err := a.DB.Debug().Create(&transaction).Error
-	if err != nil {
+func (a *auditRepositoryImpl) SaveAudit(transaction domain.AuditTransaction) gorm.Errors{
+	err := a.DB.Debug().Create(&transaction).GetErrors()
+	if len(err) > 0 {
 		log.Error("Error saving audit transaction", err)
 	}
+	return err
 }

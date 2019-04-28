@@ -3,30 +3,43 @@ package util
 import (
 	"StaticData/common"
 	"StaticData/domain"
-	log "github.com/sirupsen/logrus"
+	"github.com/jinzhu/gorm"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 	"testing"
 )
 
-func TestCreateAudit(t *testing.T) {
-	common.Init()
-	var umb domain.Umbrella
-	common.GetDB().Debug().Where("civ_id = ?", "8058").First(&umb)
-	umb.Company = "blub"
-	at := CreateAudit(umb)
-	if at == nil {
-		t.Fail()
-	}
-	result := common.GetDB().Debug().Create(at).Error
-	if result != nil {
-
-	}
-	common.CloseDB()
+type AuditBuilderTestSuite struct {
+	suite.Suite
+	db *gorm.DB
 }
 
-func init() {
-	log.SetReportCaller(true)
-	log.SetFormatter(&log.TextFormatter{
-		DisableColors: true,
-		FullTimestamp: true,
-	})
+func TestSuiteAuditBuilder(t *testing.T) {
+	suite.Run(t, new(AuditBuilderTestSuite))
+
+}
+
+func (suite * AuditBuilderTestSuite) SetupSuite(){
+	db := common.Init()
+	db.LogMode(true)
+	suite.db = db
+}
+
+func (suite * AuditBuilderTestSuite) TearDownSuite(){
+	_ = suite.db.Close()
+}
+
+func (suite *AuditBuilderTestSuite) TestCreateAudit() {
+	var umb domain.Umbrella
+	suite.db.Debug().Where("civ_id = ?", "8058").First(&umb)
+	newValue := "blub"
+	umb.Company = newValue
+	at := CreateAudit(umb)
+	assert.NotNil(suite.T(), at)
+	audits := at.Audits
+	assert.Equal(suite.T(),1,len(audits))
+	audit := audits[0]
+	assert.NotNil(suite.T(),audits[0])
+	auditProperty := audit.AuditProperties[0]
+	assert.Equal(suite.T(), newValue, auditProperty.NewValue,"New value does not match")
 }

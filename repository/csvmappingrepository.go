@@ -16,7 +16,7 @@ type CsvMappingRepository interface {
 type csvMappingRepositoryImpl struct {
 	DB *gorm.DB
 }
-
+// Creates a new
 func GetCsvMappingRepository(DB *gorm.DB) CsvMappingRepository {
 	return &csvMappingRepositoryImpl{DB}
 }
